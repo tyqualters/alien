@@ -2,6 +2,8 @@
     font-family: 'Play', sans-serif;
     color: #000;
     font-size: 18px;
+    --bg-primary-color: #fff;
+    --bg-secondary-color: #09a54a;
 }
 
 html, body {
@@ -21,7 +23,7 @@ body {
         "header"
         "main"
         "footer";
-    background-color: #09a54a;
+    background-color: var(--bg-secondary-color);
     background-image: url('background.svg');
     background-size: cover;
     background-position: center center;
@@ -36,7 +38,7 @@ main {
 
 header, footer {
     display: flex;
-    background: #fff;
+    background: var(--bg-primary-color);
     text-align: center;
     margin: 0;
     padding: 0;
