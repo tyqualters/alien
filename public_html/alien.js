@@ -1,27 +1,39 @@
-class Page {
-    constructor(id, html) {
-        this.id = id;
-        this.html = html;
-    }
-
-    display() {
-        window.document.querySelector('main').innerHTML = this.html;
-    }
+function displayFromId(id) {
+    window.document.querySelector('main').innerHTML = 
+        window.document.getElementById(id).innerHTML;
 }
 
-class Component {
-    
-}
+!function() {
+    function xHttpRequest(url, timeout_duration_sec) {
+        timeout_duration_sec = Number(timeout_duration_sec);
 
-(async () => {
-    var page_id = 0;
+        let timeout_duration_ms = timeout_duration_sec != NaN ? Math.round(timeout_duration_sec * 1_000) : 10_000;
 
-    var display = (html) => window.document.querySelector('main').innerHTML = String(html);
+        return new Promise((res, rej) => {
+            var xmlHttp = new XMLHttpRequest();
+            
+            const xmlHttpTimeout = setTimeout(() => {
+                if(xmlHttp?.status != 200 && xmlHttp?.readyState != xmlHttp?.DONE) {
+                    xmlHttp?.abort();
+                    rej(`xmlHttp timed out (${timeout_duration_ms / 1_000}s)`);
+                }
+                else console.log('xmlHttp abort superseded');
+            }, timeout_duration_sec);
 
-    switch(page_id)
-    {
-        default:
-            generate(landingpage, "Hello world!");
-            break;
+            xmlHttp.onreadystatechange = () => {
+                if(xmlHttp?.status == 200 && xmlHttp.readyState == xmlHttp?.DONE) {
+                    console.log('xmlHttp acquired resource');
+                    clearTimeout(xmlHttpTimeout);
+                    res(xmlHttp.responseText, xmlHttp.responseType);
+                }
+            };
+
+            xmlHttp.open('GET', url);
+            xmlHttp.send();
+        });
     }
-})();
+
+    // Display the default page
+    displayFromId('landing');
+
+}();

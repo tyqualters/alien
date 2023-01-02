@@ -1,0 +1,45 @@
+:root {
+    font-family: 'Play', sans-serif;
+    color: #000;
+    font-size: 18px;
+}
+
+html, body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: 2rem auto 1.5rem;
+    grid-template-areas: 
+        "header"
+        "main"
+        "footer";
+    background-color: #09a54a;
+    background-image: url('background.svg');
+    background-size: cover;
+    background-position: center center;
+    background-origin: center center;
+    background-repeat: no-repeat;
+}
+
+main {
+    display: block;
+    overflow: auto;
+}
+
+header, footer {
+    display: flex;
+    background: #fff;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+}
