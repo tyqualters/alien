@@ -1,209 +1,232 @@
 <!DOCTYPE html>
 <!-- Note: "The most common viewport dimension used in Mobile phones is 360x800 pixels." -->
 <html lang="en-US">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Alien</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap" /> 
-        <link rel="stylesheet" href="./alien.css" type="text/css" />
-    </head>
-    <body>
-        <template id="landing">
-            <section class="heading">
-                <h1>Alien Chatroom</h1>
-                <h3>Get ready for an otherworldly experience!</h3>
-            </section>
-            <section class="get-started">
-                <h2><a href="#" onclick="displayFromId('auth');" draggable="false"><span>Login or Register</span></a></h2>
-            </section>
-            <style type="text/css" scoped>
-                section.heading {
-                    display: block;
-                    margin: 0 auto;
-                    width: 18rem; /* 18px:324px */
-                    color: #fff;
-                    background: #000;
-                    padding: 20px;
-                    text-align: left;
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alien</title>
+    <link rel="shortcut icon" href="./Favicon.png" type="image/png" />
+    <link rel="icon" href="./Favicon.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap" />
+    <link rel="stylesheet" href="./alien.css" type="text/css" />
+    <!-- SEO -->
+    <meta name="description" content="Woah! What'd you find here?" />
+    <meta name="robots" content="nofollow, noarchive" />
+</head>
+
+<body>
+    <template id="landing">
+        <section class="heading">
+            <h1>Alien Chatroom</h1>
+            <h3>Get ready for an otherworldly experience!</h3>
+        </section>
+        <section class="get-started">
+            <h2><a href="#" onclick="displayFromId('auth');" draggable="false"><span>Login or Register</span></a></h2>
+        </section>
+        <style type="text/css" scoped>
+            section.heading {
+                display: block;
+                margin: 0 auto;
+                width: 18rem;
+                /* 18px:324px */
+                color: #fff;
+                background: #000;
+                padding: 20px;
+                text-align: left;
+            }
+
+            section.heading>h1 {
+                text-align: center;
+            }
+
+            section.get-started {
+                display: block;
+                margin: 0 auto;
+                width: 18rem;
+                /* 18px:324px */
+                color: #fff;
+                background: #097436;
+                padding: 20px;
+                text-align: center;
+            }
+
+            section.get-started a,
+            section.get-started a:link,
+            section.get-started a:visited {
+                position: relative;
+                display: inline-block;
+                padding: 1rem;
+                /* 18px:18px */
+                background: transparent;
+                color: #fff;
+                text-decoration: none;
+                z-index: 1;
+                user-select: none;
+            }
+
+            section.get-started a::before {
+                position: absolute;
+                top: 0;
+                left: 0;
+                display: inline-block;
+                width: 0%;
+                height: 100%;
+                background: #0c0;
+                content: "";
+                transition: width 0.3s;
+                z-index: -1;
+            }
+
+            section.get-started a:hover::before {
+                width: 100%;
+            }
+        </style>
+    </template>
+    <template id="auth">
+        <section class="auth-form-container">
+            <form>
+                <input type="text" name="user" placeholder="Enter a username" value="" maxlength="26" />
+                <input type="password" name="pass" placeholder="Enter a password" value="" maxlength="26" />
+                <a href="#" onclick="login();" draggable="false">Login</a> <a href="#" onclick="create_user();"
+                    title="Create a new account" draggable="false">Register</a>
+                <span class="resp"></span>
+                <br /><br />
+                <a href="#" onclick="displayFromId('landing');" draggable="false">Go back</a>
+            </form>
+        </section>
+        <style type="text/css" scoped>
+            section.auth-form-container {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            section.auth-form-container>form {
+                position: relative;
+                width: min-content;
+                border-radius: 20px;
+                padding: 1.5rem;
+            }
+
+            section.auth-form-container>form:before {
+                position: absolute;
+                top: 0;
+                left: 0;
+                display: inline-block;
+                width: 100%;
+                height: 100%;
+                background: #ffffff88;
+                content: "";
+                z-index: -1;
+                box-shadow: 2px 2px 3px #000000cc;
+            }
+
+            form input[type='text'],
+            form input[type='password'] {
+                position: relative;
+                display: block;
+                font-size: 1rem;
+                border: 2px solid #000;
+                background: transparent;
+                color: #000;
+                font-weight: 700;
+                outline: none;
+                margin-bottom: 5px;
+                width: 25rem;
+                padding: .25rem;
+            }
+
+            form input[type='text']:focus,
+            form input[type='password']:focus {
+                background: #00cc00ff;
+            }
+
+            form a,
+            form a:link,
+            form a:visited {
+                position: relative;
+                display: inline-block;
+                padding: .25rem;
+                background: transparent;
+                color: #000;
+                border: 2px solid #000;
+                font-weight: 700;
+                user-select: none;
+                text-decoration: underline;
+            }
+
+            form a::before {
+                position: absolute;
+                top: 0;
+                left: 0;
+                display: inline-block;
+                width: 0%;
+                height: 100%;
+                background: #00cc00ff;
+                content: "";
+                transition: width 0.3s;
+                z-index: -1;
+            }
+
+            form a:hover::before {
+                width: 100%;
+            }
+
+            span.resp {
+                color: #c00;
+                font-weight: 700;
+            }
+        </style>
+    </template>
+    <template id="chatroom">
+
+        <style type="text/css" scoped>
+            div.loading {
+                position: relative;
+                display: inline-block;
+                min-height: 2rem;
+                min-width: 2rem;
+            }
+
+            div.loading:before {
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100%;
+                width: 100%;
+                background-image: url('loading.svg');
+                background-position: center center;
+                background-origin: center center;
+                background-repeat: no-repeat;
+                background-size: contain;
+                animation: 2s linear spinning infinite;
+                content: '';
+            }
+
+            @keyframes spinning {
+                from {
+                    transform: rotate(0deg);
                 }
 
-                section.heading > h1 {
-                    text-align: center;
+                to {
+                    transform: rotate(360deg);
                 }
+            }
+        </style>
+    </template>
+    <header>
+        <h1>Alien</h1>
+    </header>
+    <main></main>
+    <footer>
+        <p>&copy; 2023 Ty Qualters</p>
+    </footer>
+</body>
+<script src="./alien.js" type="text/javascript" lang="javascript" crossorigin="anonymous"></script>
 
-                section.get-started {
-                    display: block;
-                    margin: 0 auto;
-                    width: 18rem; /* 18px:324px */
-                    color: #fff;
-                    background: #097436;
-                    padding: 20px;
-                    text-align: center;
-                }
-
-                section.get-started a,
-                section.get-started a:link,
-                section.get-started a:visited {
-                    position: relative;
-                    display: inline-block;
-                    padding: 1rem; /* 18px:18px */
-                    background: transparent;
-                    color: #fff;
-                    text-decoration: none;
-                    z-index: 1;
-                    user-select: none;
-                }
-
-                section.get-started a::before {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    display: inline-block;
-                    width: 0%;
-                    height: 100%;
-                    background: #0c0;
-                    content: "";
-                    transition: width 0.3s;
-                    z-index: -1;
-                }
-
-                section.get-started a:hover::before {
-                    width: 100%;
-                }
-            </style>
-        </template>
-        <template id="auth">
-            <section class="auth-form-container">
-                <form>
-                    <input type="text" name="username" class="userbox" placeholder="Enter a username" value="" />
-                    <input type="password" name="password" class="passbox" placeholder="Enter a password" value="" />
-                    <a href="#" onclick="displayFromId('chatroom');" draggable="false">Login</a> <a href="#" title="Create a new account" draggable="false">Register</a>
-                    <br /><br />
-                    <a href="#" onclick="displayFromId('landing');" draggable="false">Go back</a>
-                </form>
-            </section>
-            <style type="text/css" scoped>
-                section.auth-form-container {
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-
-                section.auth-form-container > form {
-                    position: relative;
-                    width: 36rem; /* 18px:648px */
-                    border-radius: 20px;
-                    padding: 1.5rem;
-                }
-                section.auth-form-container > form:before {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    display: inline-block;
-                    width: 100%;
-                    height: 100%;
-                    background: #ffffff88;
-                    content: "";
-                    z-index: -1;
-                    box-shadow: 2px 2px 3px #000000cc;
-                }
-                
-                form input[type='text'],
-                form input[type='password'] {
-                    position: relative;
-                    display: block;
-                    font-size: 1rem;
-                    border: 2px solid #000;
-                    background: transparent;
-                    color: #000;
-                    font-weight: 700;
-                    outline: none;
-                    margin-bottom: 5px;
-                    width: 25rem;
-                    padding: .25rem;
-                }
-
-                form input[type='text']:focus,
-                form input[type='password']:focus {
-                    background: #00cc00ff;
-                }
-
-                form a,
-                form a:link,
-                form a:visited {
-                    position: relative;
-                    display: inline-block;
-                    padding: .25rem;
-                    background: transparent;
-                    color: #000;
-                    border: 2px solid #000;
-                    font-weight: 700;
-                    user-select: none;
-                    text-decoration: underline;
-                }
-
-                form a::before {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    display: inline-block;
-                    width: 0%;
-                    height: 100%;
-                    background: #00cc00ff;
-                    content: "";
-                    transition: width 0.3s;
-                    z-index: -1;
-                }
-
-                form a:hover::before {
-                    width: 100%;
-                }
-            </style>
-        </template>
-        <template id="chatroom">
-            
-            <style type="text/css" scoped>
-                div.loading {
-                    position: relative;
-                    display: inline-block;
-                    min-height: 2rem;
-                    min-width: 2rem;
-                }
-
-                div.loading:before {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    height: 100%;
-                    width: 100%;
-                    background-image: url('loading.svg');
-                    background-position: center center;
-                    background-origin: center center;
-                    background-repeat: no-repeat;
-                    background-size: contain;
-                    animation: 2s linear spinning infinite;
-                    content: '';
-                }
-                
-                @keyframes spinning {
-                    from {
-                        transform:rotate(0deg);
-                    }
-
-                    to {
-                        transform:rotate(360deg);
-                    }
-                }
-            </style>
-        </template>
-        <header><h1>Alien</h1></header>
-        <main></main>
-        <footer><p>&copy; 2023 Ty Qualters</p></footer>
-    </body>
-    <script src="./alien.js" type="text/javascript" lang="javascript"></script>
 </html>
