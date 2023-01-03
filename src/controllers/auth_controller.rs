@@ -10,7 +10,11 @@ use mime_guess::mime;
 
 use mongodb::Client;
 
-use serde_json::Value;
+use serde_json::{Value};
+
+#[path ="../models/auth_model.rs"]
+mod models;
+use models::UserAccount;
 
 pub async fn handle_login(Json(payload): Json<Value>) -> impl IntoResponse {
     let json_txt = payload.to_string();
@@ -25,8 +29,14 @@ pub async fn handle_login(Json(payload): Json<Value>) -> impl IntoResponse {
         .unwrap()
 }
 
-pub async fn handle_new_user(Json(payload): Json<Value>) -> impl IntoResponse {
+pub async fn handle_new_user(State(client) : State<Client>, Json(payload): Json<Value>) -> impl IntoResponse {
     let json_txt = payload.to_string();
+
+    let accounts = client.database("chat").collection::<UserAccount>("accounts");
+
+    let account = UserAccount {id: Option::from(1), email: "test@example.com".to_string(), password: "password".to_string()};
+    
+    accounts.insert_one(account, None).await.expect("Account creation failed");
 
     Response::builder()
         .status(StatusCode::OK)

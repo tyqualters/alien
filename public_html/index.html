@@ -86,7 +86,7 @@
         </style>
     </template>
     <template id="auth">
-        <section class="auth-form-container">
+        <div class="auth-form-container">
             <form>
                 <input type="text" name="user" placeholder="Enter a username" value="" maxlength="26" />
                 <input type="password" name="pass" placeholder="Enter a password" value="" maxlength="26" />
@@ -96,9 +96,9 @@
                 <br /><br />
                 <a href="#" onclick="displayFromId('landing');" draggable="false">Go back</a>
             </form>
-        </section>
+        </div>
         <style type="text/css" scoped>
-            section.auth-form-container {
+            div.auth-form-container {
                 width: 100%;
                 height: 100%;
                 display: flex;
@@ -106,14 +106,14 @@
                 align-items: center;
             }
 
-            section.auth-form-container>form {
+            div.auth-form-container>form {
                 position: relative;
                 width: min-content;
                 border-radius: 20px;
                 padding: 1.5rem;
             }
 
-            section.auth-form-container>form:before {
+            div.auth-form-container>form:before {
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -139,6 +139,7 @@
                 margin-bottom: 5px;
                 width: 25rem;
                 padding: .25rem;
+                transition: background 0.3s;
             }
 
             form input[type='text']:focus,
@@ -185,7 +186,133 @@
     </template>
     <template id="chatroom">
 
+        <div class="chatroom-container">
+            <section class="chatroom-messages">
+                <div class="message">
+                    <p class="author" style="font-weight: 700; color: yellow;">[Alien]</p>
+                    <p class="content" style="color: white;"><strong>Welcome to the chat server!</strong><br />Why don't you try starting a conversation with someone?</p>
+                </div>
+            </section>
+            <section class="chatroom-members">
+            </section>
+            <section class="chatroom-ui">
+                <!-- TODO: On-Enter listener -->
+                <input type="text" name="message" value="" placeholder="Type a message :)" max-length="280" />
+                <a href="#" onclick="send_message();" class="button" title="Send message" draggable="false">🕊️</a>
+                <a href="#" onclick="displayFromId('landing');" class="button" title="Leave session" draggable="false">🏃‍♂️</a>
+            </section>
+        </div>
+
         <style type="text/css" scoped>
+            div.chatroom-container {
+                width: 100%;
+                height: 100%;
+                display: grid;
+                /* grid-template-columns: auto 10rem; */
+                grid-template-columns: auto 0;
+                grid-template-rows: auto 5rem;
+                grid-template-areas: 
+                    "messages members"
+                    "ui members";
+                }
+
+            div.chatroom-container > section.chatroom-messages {
+                display: flex;
+                flex-flow: column nowrap;
+                justify-content: left;
+                align-items: start;
+                background: #085026aa;
+                grid-area: messages;
+                flex-wrap: nowrap;
+                overflow-wrap: break-word;
+                overflow: auto;
+                overflow-x: hidden;
+                padding: 1rem 0rem 1rem 0rem;
+            }
+
+            div.chatroom-container > section.chatroom-members {
+                display: flex;
+                flex-flow: column;
+                justify-content: left;
+                align-items: start;
+                background: #085026ee;
+                grid-area: members;
+            }
+
+            div.chatroom-container > section.chatroom-ui {
+                display: flex;
+                flex-flow: row;
+                justify-content: center;
+                align-items: center;
+                background: #053218ee;
+                grid-area: ui;
+                gap: .5rem;
+                padding: 0.1rem 0.5rem 0.1rem 0.5rem;
+            }
+
+            input[type='text'] {
+                position: relative;
+                display: inline-block;
+                font-size: 1rem;
+                border: 2px solid #000;
+                background: transparent;
+                color: #000;
+                font-weight: 700;
+                outline: none;
+                width: 100%;
+                padding: .25rem;
+                transition: background 0.3s;
+                height: 1.5rem;
+                line-height: 1rem;
+            }
+
+            a.button,
+            a.button:link,
+            a.button:visited {
+                font-size: 1rem;
+                position: relative;
+                display: inline-block;
+                padding: .25rem;
+                background: transparent;
+                color: #000;
+                border: 2px solid #000;
+                font-weight: 700;
+                user-select: none;
+                text-decoration: none;
+                transition: background 0.3s;
+                font-family: 'Noto Color Emoji', sans-serif;
+                height: 1.5rem;
+                width: 1.5rem;
+                line-height: 1.5rem;
+                text-align: center;
+                vertical-align: middle;
+            }
+
+            a.button:hover {
+                background: #00cc00ff;
+            }
+
+            input[type='text']:focus {
+                background: #00cc00ff;
+            }
+
+            section.chatroom-messages div.message {
+                display: block;
+                max-width: calc(100% - 3rem);
+                width: calc(100% - 3.5rem);
+                height: auto;
+                padding: .1rem 1rem .1rem 2rem;
+                margin-top: .5rem;
+                background: #13631eff;
+                overflow-wrap: break-word;
+                border-right: 1px solid #0a3f11ff;
+                border-bottom: 2px solid #0a3f11ff;
+            }
+
+            section.chatroom-messages div.message p.author {
+                color: #fff;
+            }
+
             div.loading {
                 position: relative;
                 display: inline-block;

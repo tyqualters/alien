@@ -40,10 +40,10 @@ function xHttpRequest(url, data, method, contentType) {
 }
 
 async function login() {
-    let jwt = await jsonRequest('./api/auth/login', {username: document.querySelector('input[name="user"]')?.value, password: document.querySelector('input[name="pass"]')?.value}, 'POST');
+    let jwt = await jsonRequest('./api/auth/login', {username: window.document.querySelector('input[name="user"]')?.value, password: window.document.querySelector('input[name="pass"]')?.value}, 'POST');
     
     if(jwt instanceof Error) {
-        document.querySelector('span.resp').innerHTML = jwt.message;
+        window.document.querySelector('span.resp').innerHTML = jwt.message;
         console.error(jtw.message);
         return;
     }
@@ -53,10 +53,10 @@ async function login() {
 
 
 async function create_user() {
-    let jwt = await jsonRequest('./api/auth/create', {username: document.querySelector('input[name="user"]')?.value, password: document.querySelector('input[name="pass"]')?.value}, 'POST');
+    let jwt = await jsonRequest('./api/auth/create', {username: window.document.querySelector('input[name="user"]')?.value, password: window.document.querySelector('input[name="pass"]')?.value}, 'POST');
     
     if(jwt instanceof Error) {
-        document.querySelector('span.resp').innerHTML = jwt.message;
+        window.document.querySelector('span.resp').innerHTML = jwt.message;
         console.error(jtw.message);
         return;
     }
@@ -64,11 +64,50 @@ async function create_user() {
     console.log(jwt);
 }
 
+async function send_message() {
+    var textbox = window.document.querySelector('input[name="message"]');
+    const message = textbox.value;
+    
+    new_message('V01D_R34L1TY', message);
+
+    textbox.value = '';
+}
+
+async function new_message(author, message) {
+    const escape = (raw) => {
+        return raw.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+    }
+
+    let container = window.document.querySelector('section.chatroom-messages');
+
+    let messageObj = document.createElement('div');
+    messageObj.classList = 'message';
+
+    let authorObj = document.createElement('p');
+    authorObj.classList = 'author';
+    authorObj.innerText = escape(author);
+
+    let contentObj = document.createElement('p');
+    contentObj.classList = 'content';
+    contentObj.innerText = escape(message);
+
+    messageObj.appendChild(authorObj);
+    messageObj.appendChild(contentObj);
+    container.appendChild(messageObj);
+
+    if(container.children.length > 25) {
+        while(container.children.length > 25)
+            container.removeChild(window.document.querySelectorAll('div.message')[0]);
+    }
+
+    container.scrollTo(0, container.scrollHeight);
+}
+
 !function () {
 
     // Todo: check for JWT, display chat instead
 
     // Display the default page
-    displayFromId('landing');
+    displayFromId('chatroom');
 
 }();
