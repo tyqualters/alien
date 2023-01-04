@@ -10,6 +10,8 @@ A basic chat server.
 
 - [Rust & Cargo](https://www.rust-lang.org).
 
+- An environment variable for the JWT secret key: `JWT_SECRET_PRIMARY`. This can contain any string you want, however it is recommended to be a 64 character cryptographically generated string. For security purposes, you should regenerate this string before each `cargo run`. **Please note:** This is not meant to be a secure chat platform LOL! It's a PoC / hobby project!
+
 ### macOS & Linux (Bash)
 
 If on Mac or Linux, first rename *config.sh.template* to *config.sh* with `mv config.sh.template config.sh`.

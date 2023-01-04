@@ -5,7 +5,7 @@ use std::{env, time::Duration, path::PathBuf};
 use axum::{
     http::StatusCode,
     response::IntoResponse,
-    routing::{get, post},
+    routing::post,
 };
 
 use mongodb::{options::{ClientOptions, Compressor}, Client};
@@ -69,7 +69,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app_api = axum::Router::new()
         .route("/auth/login", post(auth_controller::handle_login))
         .route("/auth/create", post(auth_controller::handle_new_user))
-        .route("/test", get(auth_controller::test_api))
+        .route("/test", post(auth_controller::test_api))
         .with_state(client);
 
     // Create the main router (DO NOT include a state)

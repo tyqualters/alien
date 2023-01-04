@@ -5,6 +5,10 @@ function displayFromId(id) {
 
 const jsonRequest = (url, data, method) => xHttpRequest(url, JSON.stringify(data), method, 'application/json');
 
+function notnullish(value) {
+    return value != '' && value != undefined && value != NaN && value != null;
+}
+
 function xHttpRequest(url, data, method, contentType) {
 
     const REQUEST_TIMEOUT = 30_000;
@@ -39,29 +43,82 @@ function xHttpRequest(url, data, method, contentType) {
     });
 }
 
-async function login() {
-    let jwt = await jsonRequest('./api/auth/login', {username: window.document.querySelector('input[name="user"]')?.value, password: window.document.querySelector('input[name="pass"]')?.value}, 'POST');
-    
-    if(jwt instanceof Error) {
-        window.document.querySelector('span.resp').innerHTML = jwt.message;
-        console.error(jtw.message);
-        return;
-    }
-
-    console.log(jwt);
+async function leaveSession() {
+    window.localStorage.setItem('jwt', '');
+    displayFromId('landing');
 }
 
+async function login() {
+    var userbox = window.document.querySelector('input[name="user"]'),
+        passbox = window.document.querySelector('input[name="pass"]'),
+        spanText = window.document.querySelector('span.resp');
 
-async function create_user() {
-    let jwt = await jsonRequest('./api/auth/create', {username: window.document.querySelector('input[name="user"]')?.value, password: window.document.querySelector('input[name="pass"]')?.value}, 'POST');
+        spanText.innerHTML = "";
+
+        let respText = await jsonRequest('./api/auth/login', {username: userbox?.value, password: passbox?.value}, 'POST');
+
+        let _json;
     
-    if(jwt instanceof Error) {
-        window.document.querySelector('span.resp').innerHTML = jwt.message;
-        console.error(jtw.message);
+        if(respText == undefined || respText instanceof Error || (_json = JSON.parse(respText))?.status == 'err' || _json?.status != 'jwt') {
+            userbox.value = "";
+            passbox.value = "";
+            spanText.innerHTML = _json.message;
+            console.error(_json.message);
+            return;
+        }
+
+    alert('Logged in!');
+
+    userbox.value = "";
+    passbox.value = "";
+
+    localStorage.setItem('jwt', _json.message);
+    displayFromId('chatroom');
+}
+
+async function send_message() {
+    let messagebox = window.document.querySelector('input[name="message"]');
+
+    let query = { "uid": localStorage.getItem('jwt'), "message": messagebox?.value };
+
+    let respText = await xHttpRequest('./api/message', query, 'POST', 'application/json');
+
+    let _json;
+    
+    if(respText == undefined || respText instanceof Error || (_json = JSON.parse(respText))?.status == 'err' || _json?.status != 'jwt') {
+        messagebox.value = '';
+        console.error(_json.message);
+        alert('Something went wrong and you got disconnected.');
+        window.localStorage.setItem('jwt', '');
+        displayFromId('landing');
         return;
     }
 
-    console.log(jwt);
+}
+
+async function create_user() {
+    var userbox = window.document.querySelector('input[name="user"]'),
+        passbox = window.document.querySelector('input[name="pass"]'),
+        spanText = window.document.querySelector('span.resp');
+
+        spanText.innerHTML = "";
+
+        let respText = await jsonRequest('./api/auth/create', {username: userbox?.value, password: passbox?.value}, 'POST');
+
+        let _json;
+    
+        if(respText == undefined || respText instanceof Error || (_json = JSON.parse(respText))?.status == 'err') {
+            userbox.value = "";
+            passbox.value = "";
+            spanText.innerHTML = _json.message;
+            console.error(_json.message);
+            return;
+        }
+
+    alert('User created successfully. You can now log in!');
+
+    userbox.value = "";
+    passbox.value = "";
 }
 
 async function send_message() {
@@ -73,7 +130,7 @@ async function send_message() {
     textbox.value = '';
 }
 
-async function new_message(author, message) {
+async function new_message(author, message, _id) {
     const escape = (raw) => {
         return raw.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
     }
@@ -93,6 +150,7 @@ async function new_message(author, message) {
 
     messageObj.appendChild(authorObj);
     messageObj.appendChild(contentObj);
+    messageObj.setAttribute('data-id', _id);
     container.appendChild(messageObj);
 
     if(container.children.length > 25) {
@@ -105,9 +163,9 @@ async function new_message(author, message) {
 
 !function () {
 
-    // Todo: check for JWT, display chat instead
-
-    // Display the default page
-    displayFromId('chatroom');
+    if(notnullish(window.localStorage.getItem('jwt'))) {
+        // Display the default page
+        displayFromId('chatroom');
+    } else displayFromId('landing');
 
 }();
