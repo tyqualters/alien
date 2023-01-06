@@ -9,3 +9,7 @@ $MONGO_PASS='MONGO_PASSWORD_GOES_HERE'
 $MONGO_URL='MONGO_URL_GOES_HERE'
 
 $env:MONGO_SERVER_URL="mongodb+srv://${MONGO_USER}:${MONGO_PASS}@${MONGO_URL}/?retryWrites=true&w=majority"
+
+# Secret key
+
+$env:JWT_SECRET_PRIMARY='SECRET_KEY_GOES_HERE'
