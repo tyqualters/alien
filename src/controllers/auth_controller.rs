@@ -10,20 +10,22 @@ use mime_guess::mime;
 
 use mongodb::{Client, bson::doc, Collection};
 
-use serde::Serialize;
-use serde_json::{json};
+use serde::{Serialize};
+use serde_json::{json, Value};
 
 use jsonwebtoken::Algorithm;
 use std::{env, time::{SystemTime, UNIX_EPOCH}};
 
 use crypto::{digest::Digest, sha3::Sha3};
 
+use html_escape;
+
 #[path ="../models.rs"]
 mod models;
 
 use models::{auth_model::{UserAccount}, resp_model::ServerApiResponse};
 
-use self::models::auth_model::{UserPayload, Claims};
+use self::models::auth_model::{UserPayload, Claims, MessagePayload, Message};
 
 fn hash_string(hash_str: String) -> String {
     let mut hasher = Sha3::sha3_384();
@@ -88,13 +90,18 @@ fn verify_jwt(jwt: String) -> bool {
     false
 }
 
-// pub async fn validate_jwt(jwt: String) -> bool {
-//     let decodingKey = jsonwebtoken::DecodingKey::from_secret(env::var("JWT_SECRET_PRIMARY").expect("Make sure that JWT_SECRET_PRIMARY is set").as_ref());
+pub async fn name_from_jwt(jwt: String) -> Option<String> {
+    let secret = env::var("JWT_SECRET_PRIMARY").expect("Make sure that JWT_SECRET_PRIMARY is set");
+    let key = jsonwebtoken::DecodingKey::from_secret(secret.as_bytes());
     
-//     // sign: message, key, algorithm
-//     // verify: signature, message, key, algorithm
-//     jsonwebtoken::crypto::verify(jwt.as_ref(), &decodingKey, );
-// }
+    let token_message = jsonwebtoken::decode::<Claims>(&jwt, &key, &jsonwebtoken::Validation::new(Algorithm::HS384));
+    
+    if token_message.is_err() {
+        return Option::None
+    }
+
+    Option::Some(token_message.unwrap().claims.name)
+}
 
 pub async fn handle_login(State(client) : State<Client>, Json(payload): Json<UserAccount>) -> impl IntoResponse {
     // Not too sure about MongoDB's SQL-injection best practices.
@@ -199,6 +206,115 @@ pub async fn test_api(Json(payload) : Json<UserPayload>) -> impl IntoResponse {
         println!("Verified");
         return (StatusCode::OK, "Verified")
     }
+
     println!("Failed!");
+
     (StatusCode::OK, "Verification failed")
+}
+
+pub async fn post_message(State(client) : State<Client>, Json(payload) : Json<MessagePayload>) -> impl IntoResponse {
+    let username = name_from_jwt(payload.jwt.clone()).await;
+    if !verify_jwt(payload.jwt.clone()) || username.is_none() {
+        
+        let response = ServerApiResponse {
+            status: "err".to_owned(),
+            message: "failed to send message".to_owned()
+        };
+
+        return Response::builder()
+        .status(StatusCode::OK)
+        .header(
+            header::CONTENT_TYPE,
+            HeaderValue::from_str(mime::APPLICATION_JSON.as_ref()).unwrap(),
+        )
+        .body(body::boxed(Full::from(json!(response).to_string())))
+        .unwrap()
+    }
+
+    let response_success = ServerApiResponse {
+        status: "ok".to_owned(),
+        message: "message sent".to_owned()
+    };
+
+    let response_dberr = ServerApiResponse {
+        status: "err".to_owned(),
+        message: "internal error".to_owned()
+    };
+
+    let username = username.unwrap();
+    
+    let new_message = Message { usr: username, tsp:  SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(), msg: payload.msg };
+
+    match client.database("chat").collection::<Message>("messages").insert_one(new_message, None).await {
+        Ok(_) => Response::builder()
+        .status(StatusCode::OK)
+        .header(
+            header::CONTENT_TYPE,
+            HeaderValue::from_str(mime::APPLICATION_JSON.as_ref()).unwrap(),
+        )
+        .body(body::boxed(Full::from(json!(response_success).to_string())))
+        .unwrap(),
+        Err(_) => Response::builder()
+        .status(StatusCode::OK)
+        .header(
+            header::CONTENT_TYPE,
+            HeaderValue::from_str(mime::APPLICATION_JSON.as_ref()).unwrap(),
+        )
+        .body(body::boxed(Full::from(json!(response_dberr).to_string())))
+        .unwrap()
+    }
+}
+
+pub async fn get_messages(State(client) : State<Client>, Json(payload) : Json<UserPayload>) -> impl IntoResponse {
+    if !verify_jwt(payload.uid) {
+        let response = ServerApiResponse {
+            status: "ok".to_owned(),
+            message: "failed to authenticate".to_owned()
+        };
+
+        return Response::builder()
+        .status(StatusCode::OK)
+        .header(
+            header::CONTENT_TYPE,
+            HeaderValue::from_str(mime::APPLICATION_JSON.as_ref()).unwrap(),
+        )
+        .body(body::boxed(Full::from(json!(response).to_string())))
+        .unwrap()
+    }
+
+    let options = mongodb::options::FindOptions::builder()
+        .limit(25).sort(doc!{"_id": 1}).build();
+
+    let mut cursor = client.database("chat").collection::<Message>("messages").find(None, options.to_owned()).await.unwrap();
+    let mut messages: Vec<Message> = Vec::new();
+
+    loop {
+        let result = cursor.advance().await.ok();
+        if result.unwrap_or(false) {
+            messages.push(cursor.deserialize_current().unwrap());
+        } else {
+            break;
+        }
+    }
+
+    let mut resp_messages: Vec<Value> = Vec::new();
+
+    for x in messages.iter() {
+        let _auth = x.usr.clone();
+        let _mesg = x.msg.clone();
+        html_escape::encode_safe(&_auth);
+        html_escape::encode_safe(&_mesg);
+        resp_messages.push(json!({"user": _auth, "timestamp": x.tsp, "message": _mesg}));
+    }
+
+    let response = json!({"status": "ok", "message": "update messages", "messages": resp_messages});
+
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(
+            header::CONTENT_TYPE,
+            HeaderValue::from_str(mime::APPLICATION_JSON.as_ref()).unwrap(),
+        )
+        .body(body::boxed(Full::from(json!(response).to_string())))
+        .unwrap()
 }

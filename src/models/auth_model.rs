@@ -24,3 +24,16 @@ pub struct Claims {
 pub struct UserPayload {
     pub uid: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct MessagePayload {
+    pub jwt: String,
+    pub msg: String
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Message {
+    pub usr: String,
+    pub tsp: u64,
+    pub msg: String
+}

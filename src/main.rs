@@ -69,6 +69,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app_api = axum::Router::new()
         .route("/auth/login", post(auth_controller::handle_login))
         .route("/auth/create", post(auth_controller::handle_new_user))
+        .route("/post", post(auth_controller::post_message))
+        .route("/update", post(auth_controller::get_messages))
         .route("/test", post(auth_controller::test_api))
         .with_state(client);
 

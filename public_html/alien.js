@@ -1,3 +1,5 @@
+const MAX_MESSAGE_RENDER = 25;
+
 function displayFromId(id) {
     window.document.querySelector('main').innerHTML =
         window.document.getElementById(id).innerHTML;
@@ -79,13 +81,13 @@ async function login() {
 async function send_message() {
     let messagebox = window.document.querySelector('input[name="message"]');
 
-    let query = { "uid": localStorage.getItem('jwt'), "message": messagebox?.value };
+    let query = { "jwt": localStorage.getItem('jwt'), "msg": messagebox?.value };
 
-    let respText = await xHttpRequest('./api/message', query, 'POST', 'application/json');
+    let respText = await xHttpRequest('./api/post', JSON.stringify(query), 'POST', 'application/json');
 
     let _json;
     
-    if(respText == undefined || respText instanceof Error || (_json = JSON.parse(respText))?.status == 'err' || _json?.status != 'jwt') {
+    if(respText == undefined || respText instanceof Error || (_json = JSON.parse(respText))?.status == 'err' || _json?.status != 'ok') {
         messagebox.value = '';
         console.error(_json.message);
         alert('Something went wrong and you got disconnected.');
@@ -94,6 +96,7 @@ async function send_message() {
         return;
     }
 
+    messagebox.value = '';
 }
 
 async function create_user() {
@@ -107,7 +110,7 @@ async function create_user() {
 
         let _json;
     
-        if(respText == undefined || respText instanceof Error || (_json = JSON.parse(respText))?.status == 'err') {
+        if(respText == undefined || respText instanceof Error || (_json = JSON.parse(respText))?.status == 'err' || _json?.status != 'ok') {
             userbox.value = "";
             passbox.value = "";
             spanText.innerHTML = _json.message;
@@ -119,15 +122,6 @@ async function create_user() {
 
     userbox.value = "";
     passbox.value = "";
-}
-
-async function send_message() {
-    var textbox = window.document.querySelector('input[name="message"]');
-    const message = textbox.value;
-    
-    new_message('V01D_R34L1TY', message);
-
-    textbox.value = '';
 }
 
 async function new_message(author, message, _id) {
@@ -153,13 +147,38 @@ async function new_message(author, message, _id) {
     messageObj.setAttribute('data-id', _id);
     container.appendChild(messageObj);
 
-    if(container.children.length > 25) {
-        while(container.children.length > 25)
+    if(container.children.length > MAX_MESSAGE_RENDER) {
+        while(container.children.length > MAX_MESSAGE_RENDER)
             container.removeChild(window.document.querySelectorAll('div.message')[0]);
     }
 
     container.scrollTo(0, container.scrollHeight);
 }
+
+async function update_messages() {
+    if(notnullish(window.localStorage.getItem('jwt'))) {
+        let respText = await jsonRequest('./api/update', {uid: window.localStorage.getItem('jwt')}, 'POST');
+
+        let _json;
+    
+        if(respText == undefined || respText instanceof Error || (_json = JSON.parse(respText))?.status == 'err' || _json?.status != 'ok') {
+            spanText.innerHTML = _json.message;
+            console.error(_json.message);
+            window.localStorage.setItem('jwt', '');
+            alert('Failed to validate JWT. You have been logged out.');
+            return;
+        }
+    
+        if(_json?.messages instanceof Array) {
+            document.querySelector('section.chatroom-messages').innerHTML = '';
+            for(let message of _json.messages) {
+                new_message(JSON.parse(message.user)?.uid, message.message, message.timestamp);
+            }
+        }
+    }
+}
+
+window.setInterval(update_messages, 2000);
 
 !function () {
 
