@@ -2,6 +2,8 @@
 
 A basic chat server.
 
+See video [YouTube](https://www.youtube.com/watch?v=84uc37m7QNs)
+
 ## Usage
 
 ### Prerequisites
